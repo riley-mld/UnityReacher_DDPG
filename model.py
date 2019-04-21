@@ -14,7 +14,7 @@ def hidden_init(layer):
 class Actor(nn.Module):
     """Actor Policy Network."""
     
-    def __init__(self, state_size, action_size, seed, fc1_units=400, fc2_units=300):
+    def __init__(self, state_size, action_size, seed, fc1_units=96, fc2_units=96):
         """Initialize the parameters and build the network.
         
         Params:
@@ -50,7 +50,7 @@ class Actor(nn.Module):
 class Critic(nn.Module):
     """Critic Value Network."""
     
-    def __init__(self, state_size, action_size, seed, fc1_units=400, fc2_units=300):
+    def __init__(self, state_size, action_size, seed, fc1_units=96, fc2_units=96):
         """Initialize the parameters and build the network.
         
         Params:
