@@ -48,7 +48,7 @@ class Agent():
         # Set up the Actor networks
         self.actor_local = Actor(state_size, action_size, seed).to(device)
         self.actor_target = Actor(state_size, action_size, seed).to(device)
-        self.actor_optimizer = optim.Adam(self.actor_local.parameters, lr=LR_ACTOR)
+        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=LR_ACTOR)
     
         # Set up the Critic networks
         self.critic_local = Critic(state_size, action_size, seed).to(device)
@@ -56,7 +56,7 @@ class Agent():
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
     
         # Noise process for exploratary action
-        self.noise = OUNoise(action_size, random_seed)
+        self.noise = OUNoise((n_agents, action_size), seed)
     
         # Set replay memory
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
@@ -69,8 +69,9 @@ class Agent():
         
         # If enough samples are availble in the buffer to sample, Learn
         if len(self.memory) > BATCH_SIZE:
-            experiences = self.memory.sample()
-            self.learn(experiences, GAMMA)
+            for i in range(10):
+                experiences = self.memory.sample()
+                self.learn(experiences, GAMMA)
             
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
@@ -110,6 +111,7 @@ class Agent():
         # Minimise the loss with gradient descent
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
+        #torch.nn.utils.clip_grad_norm(self.critic_local.parameters(), 1)
         self.critic_optimizer.step()
         
         # Update Actor
@@ -143,6 +145,7 @@ class OUNoise():
     
     def __init__(self, size, seed, mu=0.0, theta=0.15, sigma=0.2):
         """Initialize parameters and nose process."""
+        self.size = size
         self.mu = mu * np.ones(size)
         self.theta = theta
         self.sigma = sigma
@@ -156,7 +159,7 @@ class OUNoise():
     def sample(self):
         """Update internal state and return it asa noise sample."""
         x = self.state
-        dx = self.theta * (self.mu - x) + self.sigma * np.array([random.random() for i in range(len(x))])
+        dx = self.theta * (self.mu - x) + self.sigma * np.random.standard_normal(self.size)
         self.state = x + dx
         
         return self.state
@@ -182,7 +185,7 @@ class ReplayBuffer():
     def add(self, state, action, reward, next_state, done):
         """Add a new experience to memory."""
         exp = self.experience(state, action, reward, next_state, done)
-        self.memory.append(e)
+        self.memory.append(exp)
         
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
