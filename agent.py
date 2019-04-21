@@ -32,7 +32,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     """A class to create agents that interact and learn from the enviroment."""
     
-    def __init__(self, state_size, action_size, seed):
+    def __init__(self, state_size, action_size, n_agents, seed):
         """Initilize the Agent.
         
         Params:
@@ -42,6 +42,7 @@ class Agent():
         """
         self.state_size = state_size
         self.action_size = action_size
+        self.n_agents = n_agents
         self.seed = random.seed(seed)
     
         # Set up the Actor networks
@@ -62,7 +63,9 @@ class Agent():
     
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay buffer, and use a random batch from memory to learn."""
-        self.memory.add(state, action, reward, next_state, done)
+        # Add all experiences from all agents to memmory
+        for i in range(self.n_agents):
+            self.memory.add(state[i,:], action[i,:], reward[i], next_state[i,:], done[i])
         
         # If enough samples are availble in the buffer to sample, Learn
         if len(self.memory) > BATCH_SIZE:
