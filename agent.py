@@ -32,6 +32,12 @@ NUM_UPDATE = 10
 EPSILON = 1
 # Epsilon decay rate
 EPSILON_DECAY = 1e-6
+# Number of nodes in Actor network
+ACTOR_FC1 = 98
+ACTOR_FC2 = 98
+# Number of nodes in Critic network
+CRITIC_FC1 = 98
+CRITIC_FC2 = 98
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -58,13 +64,13 @@ class Agent():
         self.time_step = 0
         
         # Set up the Actor networks
-        self.actor_local = Actor(state_size, action_size, seed).to(device)
-        self.actor_target = Actor(state_size, action_size, seed).to(device)
+        self.actor_local = Actor(state_size, action_size, seed, fc1_units=ACTOR_FC1, fc2_units=ACTOR_FC2).to(device)
+        self.actor_target = Actor(state_size, action_size, seed, fc1_units=ACTOR_FC1, fc2_units=ACTOR_FC2).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=LR_ACTOR)
 
         # Set up the Critic networks
-        self.critic_local = Critic(state_size, action_size, seed).to(device)
-        self.critic_target = Critic(state_size, action_size, seed).to(device)
+        self.critic_local = Critic(state_size, action_size, seed, fc1_units=CRITIC_FC1, fc2_units=CRITIC_FC2).to(device)
+        self.critic_target = Critic(state_size, action_size, seed, fc1_units=CRITIC_FC1, fc2_units=CRITIC_FC2).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
     
         # Noise process for exploratary action
@@ -166,6 +172,18 @@ class Agent():
     def hard_copy(self, local_model, target_model):
         for target_param, param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(param.data)
+            
+    def save(self):
+        torch.save(self.actor_local.state_dict(), 
+                   str(ACTOR_FC1)+'_'+str(ACTOR_FC2) + '_actor.pth')
+        torch.save(self.critic_local.state_dict(),
+                   str(CRITIC_FC1)+'_'+str(CRITIC_FC2) + '_critic.pth')
+    
+    def load(self, actor_file, critic_file):
+        self.actor_local.load_state_dict(torch.load(actor_file))
+        self.critic_local.load_state_dict(torch.load(critic_file))
+        self.hard_copy(self.actor_local, self.actor_target)
+        self.hard_copy(self.critic_local, self.critic_target)  
         
 
 class OUNoise():
