@@ -13,13 +13,13 @@ import torch.optim as optim
 # Replay buffer size
 BUFFER_SIZE = int(1e5)
 # Minibatch size
-BATCH_SIZE = 128
+BATCH_SIZE = 256
 # Discount Factor
 GAMMA = 0.99
 # Soft update parameter
 TAU = 1e-3
 # Actor learning rate
-LR_ACTOR = 1e-4
+LR_ACTOR = 1e-3
 # Critic learning rate
 LR_CRITIC = 1e-3
 # L2 weight decay
@@ -44,7 +44,6 @@ class Agent():
         self.action_size = action_size
         self.n_agents = n_agents
         self.seed = random.seed(seed)
-    
         # Set up the Actor networks
         self.actor_local = Actor(state_size, action_size, seed).to(device)
         self.actor_target = Actor(state_size, action_size, seed).to(device)
@@ -60,6 +59,10 @@ class Agent():
     
         # Set replay memory
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
+        
+        # Copy over the weights
+        self.hard_copy(self.actor_local, self.actor_target)
+        self.hard_copy(self.critic_local, self.critic_target)
     
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay buffer, and use a random batch from memory to learn."""
@@ -138,6 +141,10 @@ class Agent():
         """
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
+            
+    def hard_copy(self, local_model, target_model):
+        for target_param, param in zip(target_model.parameters(), local_model.parameters()):
+            target_param.data.copy_(param.data)
         
 
 class OUNoise():
