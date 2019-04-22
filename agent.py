@@ -33,11 +33,11 @@ EPSILON = 1
 # Epsilon decay rate
 EPSILON_DECAY = 1e-6
 # Number of nodes in Actor network
-ACTOR_FC1 = 98
-ACTOR_FC2 = 98
+ACTOR_FC1 = 256
+ACTOR_FC2 = 256
 # Number of nodes in Critic network
-CRITIC_FC1 = 98
-CRITIC_FC2 = 98
+CRITIC_FC1 = 256
+CRITIC_FC2 = 256
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
