@@ -73,6 +73,7 @@ class Critic(nn.Module):
         self.fc1 = nn.Linear(state_size, fc1_units)
         self.fc2 = nn.Linear(fc1_units + action_size, fc2_units)
         self.fc3 = nn.Linear(fc2_units, 1)
+        
         # Reset the weights
         #self.reset_parameters()
         
