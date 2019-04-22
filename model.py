@@ -14,7 +14,7 @@ def hidden_init(layer):
 class Actor(nn.Module):
     """Actor Policy Network."""
     
-    def __init__(self, state_size, action_size, seed, fc1_units=96, fc2_units=96):
+    def __init__(self, state_size, action_size, seed, fc1_units=128, fc2_units=128):
         """Initialize the parameters and build the network.
         
         Params:
@@ -32,7 +32,7 @@ class Actor(nn.Module):
         self.fc3 = nn.Linear(fc2_units, action_size)
         
         # Reset the weights
-        self.reset_parameters()
+        #self.reset_parameters()
         
     def reset_parameters(self):
         """Reset the weights"""
@@ -50,7 +50,7 @@ class Actor(nn.Module):
 class Critic(nn.Module):
     """Critic Value Network."""
     
-    def __init__(self, state_size, action_size, seed, fc1_units=96, fc2_units=96):
+    def __init__(self, state_size, action_size, seed, fc1_units=128, fc2_units=128):
         """Initialize the parameters and build the network.
         
         Params:
@@ -66,9 +66,8 @@ class Critic(nn.Module):
         self.fc1 = nn.Linear(state_size, fc1_units)
         self.fc2 = nn.Linear(fc1_units + action_size, fc2_units)
         self.fc3 = nn.Linear(fc2_units, 1)
-        
         # Reset the weights
-        self.reset_parameters()
+        #self.reset_parameters()
         
     def reset_parameters(self):
         """Reset the weights"""
