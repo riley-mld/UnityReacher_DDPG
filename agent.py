@@ -24,6 +24,14 @@ LR_ACTOR = 1e-3
 LR_CRITIC = 1e-3
 # L2 weight decay
 WEIGHT_DECAY = 0
+# Number of time steps before each update
+UPDATE_EVERY = 20
+# Number of updates in each update
+NUM_UPDATE = 10
+# Epsilon for the noise process added to the actions
+EPSILON = 1
+# Epsilon decay rate
+EPSILON_DECAY = 1e-6
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -44,11 +52,16 @@ class Agent():
         self.action_size = action_size
         self.n_agents = n_agents
         self.seed = random.seed(seed)
+        self.epsilon = EPSILON
+        
+        # Time step number
+        self.time_step = 0
+        
         # Set up the Actor networks
         self.actor_local = Actor(state_size, action_size, seed).to(device)
         self.actor_target = Actor(state_size, action_size, seed).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=LR_ACTOR)
-    
+
         # Set up the Critic networks
         self.critic_local = Critic(state_size, action_size, seed).to(device)
         self.critic_target = Critic(state_size, action_size, seed).to(device)
@@ -70,9 +83,11 @@ class Agent():
         for i in range(self.n_agents):
             self.memory.add(state[i,:], action[i,:], reward[i], next_state[i,:], done[i])
         
+        self.time_step += 1
+        
         # If enough samples are availble in the buffer to sample, Learn
-        if len(self.memory) > BATCH_SIZE:
-            for i in range(10):
+        if len(self.memory) > BATCH_SIZE and self.time_step % UPDATE_EVERY == 0:
+            for i in range(NUM_UPDATE):
                 experiences = self.memory.sample()
                 self.learn(experiences, GAMMA)
             
@@ -87,7 +102,8 @@ class Agent():
         self.actor_local.train()
         # Add noise
         if add_noise:
-            action += self.noise.sample()
+            action += self.epsilon * self.noise.sample()
+            #self.reset()
         return np.clip(action, -1, 1)
         
     def reset(self):
@@ -114,7 +130,7 @@ class Agent():
         # Minimise the loss with gradient descent
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
-        #torch.nn.utils.clip_grad_norm(self.critic_local.parameters(), 1)
+        torch.nn.utils.clip_grad_norm_(self.critic_local.parameters(), 1)
         self.critic_optimizer.step()
         
         # Update Actor
@@ -129,6 +145,11 @@ class Agent():
         # Update target networks
         self.soft_update(self.critic_local, self.critic_target, TAU)
         self.soft_update(self.actor_local, self.actor_target, TAU)
+        
+        # Reset noise                               
+        self.reset()
+        # Decay epsilon
+        self.epsilon -= EPSILON_DECAY             
         
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
@@ -150,7 +171,7 @@ class Agent():
 class OUNoise():
     """Ornstein-Uhlenbeck noise process."""
     
-    def __init__(self, size, seed, mu=0.0, theta=0.15, sigma=0.2):
+    def __init__(self, size, seed, mu=0.0, theta=0.15, sigma=0.05):
         """Initialize parameters and nose process."""
         self.size = size
         self.mu = mu * np.ones(size)
@@ -164,7 +185,7 @@ class OUNoise():
         self.state = copy.copy(self.mu)
         
     def sample(self):
-        """Update internal state and return it asa noise sample."""
+        """Update internal state and return it as a noise sample."""
         x = self.state
         dx = self.theta * (self.mu - x) + self.sigma * np.random.standard_normal(self.size)
         self.state = x + dx
