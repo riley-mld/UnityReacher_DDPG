@@ -25,10 +25,14 @@ class Actor(nn.Module):
         fc2_units: Number of nodes in the second hidden layer
         """
         super(Actor, self).__init__()
+        
         self.seed = torch.manual_seed(seed)
         # Model architecture
+        self.bn0 = nn.BatchNorm1d(state_size)
         self.fc1 = nn.Linear(state_size, fc1_units)
+        self.bn1 = nn.BatchNorm1d(fc1_units)
         self.fc2 = nn.Linear(fc1_units, fc2_units)
+        self.bn2 = nn.BatchNorm1d(fc2_units)
         self.fc3 = nn.Linear(fc2_units, action_size)
         
         # Reset the weights
@@ -42,8 +46,9 @@ class Actor(nn.Module):
         
     def forward(self, state):
         """Forward pass, this function outputs the action chosen by model."""
-        x = F.relu(self.fc1(state))
-        x = F.relu(self.fc2(x))
+        x = self.bn0(state)
+        x = F.relu(self.bn1(self.fc1(x)))
+        x = F.relu(self.bn2(self.fc2(x)))        
         return F.tanh(self.fc3(x))
     
     
@@ -61,8 +66,10 @@ class Critic(nn.Module):
         fc2_units: Number of nodes in the second hidden layer        
         """
         super(Critic, self).__init__()
+        
         self.seed = torch.manual_seed(seed)
         # Model architecture
+        self.bn0 = nn.BatchNorm1d(state_size)
         self.fc1 = nn.Linear(state_size, fc1_units)
         self.fc2 = nn.Linear(fc1_units + action_size, fc2_units)
         self.fc3 = nn.Linear(fc2_units, 1)
@@ -77,6 +84,7 @@ class Critic(nn.Module):
         
     def forward(self, state, action):
         """Forward pass, this function outputs the Q value of chosen action."""
+        state = self.bn0(state)
         xs = F.relu(self.fc1(state))
         x = torch.cat((xs, action), dim=1)
         x = F.relu(self.fc2(x))
