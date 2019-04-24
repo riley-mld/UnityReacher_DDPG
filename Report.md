@@ -41,5 +41,6 @@ Agent solved the environment in episode 35! And highest score achieved with the 
 ![](Assets/reward_plot.png?raw=true)
 
 ## Ideas for Future Work
-Implementing a Rainbow DQN.
-Experiment with more Actor-Critic algorithms like D4PG, A2C, AKTR etc.
+* Implementing a Rainbow DQN.
+
+* Experiment with more Actor-Critic algorithms like D4PG, A2C, AKTR etc.
