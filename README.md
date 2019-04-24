@@ -2,9 +2,11 @@
 # Deep Reinforcement Learning Agent to Solve Unity Reacher
 This project was done as part of the [Udacity Deep Reinforcement Learning Nanodegree](https://eu.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893). DDPG (Deep Deterministic Policy Gradient) algorithm was used in this project to teach 20 agents simultaneously to move double-jointed arms to target locations in a Unity environment. For this project, I used the [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher) environment.
 
-<iframe src="https://player.vimeo.com/video/332195915" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
 
-This is a video of a trained agent using this repository.
+![Trained_agent](Assets/trained_agent.gif)
+
+
+For viewing a video of a trained agent using this repository [click here.](https://vimeo.com/332195915)
 
 ## Introduction
 In this environment, a double-jointed arm can move to target locations. A reward of +0.1 is provided for each step that the agent's hand is in the goal location. Thus, the goal of your agent is to maintain its position at the target location for as many time steps as possible.
