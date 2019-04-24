@@ -1,6 +1,12 @@
 # Report
+
+![Trained_agent](Assets/trained_agent.gif)
+
+
+For viewing a video of a trained agent using this repository [click here.](https://vimeo.com/332195915)
+
 ## Learning Algorithm
-I used a DDPG (Deep Deterministic Policy Gradient) learning algorithm for this project. Two identical neural networks (identical in architecture) were used, one that does the learning and one set as target and soft update happens after a few time-steps of learning to make the target weights closer to the learning neural network. I also used double DQN, a dueling DQN and prioritized experience replay to improve the performance of the Agent. Although i ended up not using prioritized experience replay for the final result, as I wasn't able to get better results using prioritized experience replay.
+I used a DDPG (Deep Deterministic Policy Gradient) learning algorithm for this project. Two networks architecture were used for this algorithm one as Critic and one as Actor. The Actor network will be the used policy that make the actions. The Critic network will be used to evaluate the value of state/actions. For each Actor and Critic network, two identical neural networks (identical in architecture) were used, one that does the learning and one set as target and soft update happens after a few time-steps of learning to make the target weights closer to the learning neural network. I used batch normalisation and added paralel learning to the agents for improved learning.
 
 ### Hyper parameters
 * Replay Buffer Size = 100000
@@ -19,20 +25,21 @@ I used a DDPG (Deep Deterministic Policy Gradient) learning algorithm for this p
 
 
 ### Model Architecture
-Actor
+Actor:
 `fc1 = [33, 256]`
 `fc2 = [256, 256]`
 `fc3 = [256, 4]`
 
-Critic
+Critic:
 `fc1 = [33, 256]`
 `fc2 = [256, 256]`
 `fc3 = [256, 1]`
 
 ## Plot of Rewards
-Agent solved the environment in episode 36! And achieved a maximum average score over last 100 episode of 39 after training about 100 episodes.
+Agent solved the environment in episode 35! And highest score achieved with the agents was 39.08!
 
 ![](Assets/reward_plot.png?raw=true)
 
 ## Ideas for Future Work
-Implementing a Rainbow DQN and attempting to make the agent learn directly from the pixels.
+Implementing a Rainbow DQN.
+Experiement with more
